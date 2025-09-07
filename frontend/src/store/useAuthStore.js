@@ -111,10 +111,10 @@ import toast from "react-hot-toast";
 import { io } from "socket.io-client";
 
 // ✅ Fix BASE_URL to point to backend in production
-const BASE_URL =
+/*const BASE_URL =
   import.meta.env.MODE === "development"
     ? "http://localhost:5001"
-    : "https://chatappverserver.vercel.app";
+    : "https://chatappverserver.vercel.app";*/
 
 export const useAuthStore = create((set, get) => ({
   authUser: null,
@@ -191,7 +191,7 @@ export const useAuthStore = create((set, get) => ({
     }
   },
 
-  connectSocket: () => {
+  /*connectSocket: () => {
     const { authUser } = get();
     if (!authUser || get().socket?.connected) return;
 
@@ -205,7 +205,24 @@ export const useAuthStore = create((set, get) => ({
     socket.on("getOnlineUsers", (userIds) => {
       set({ onlineUsers: userIds });
     });
-  },
+  },*/
+
+  connectSocket: () => {
+        const { authUser } = get();
+        if (!authUser || get().socket?.connected) return;
+
+        // ✅ Use a relative path for the socket connection
+        const socket = io({
+            query: { userId: authUser._id },
+        });
+
+        socket.connect();
+        set({ socket });
+
+        socket.on("getOnlineUsers", (userIds) => {
+            set({ onlineUsers: userIds });
+        });
+    },
 
   disconnectSocket: () => {
     if (get().socket?.connected) get().socket.disconnect();
